@@ -1,0 +1,28 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "title": "Create new homepage banner",
+      "details": "Lorem ipsum",
+      "complete": true
+    },
+    {
+      "id": "2",
+      "title": "Make marketing email",
+      "details": "Lorem ipsum",
+      "complete": true
+    },
+    {
+      "id": "6eae",
+      "title": "Add a figma design",
+      "details": "We need to have the wireframe.",
+      "complete": false
+    },
+    {
+      "id": "03ed",
+      "title": "Add Supabase",
+      "details": "Add Supabase in this project",
+      "complete": false
+    }
+  ]
+}
