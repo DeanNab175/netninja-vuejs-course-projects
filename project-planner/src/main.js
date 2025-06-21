@@ -14,21 +14,19 @@ const pinia = createPinia()
 
 app.use(router)
 app.use(pinia)
-
-const userStore = useUserStore()
-await userStore.fetchUser()
-
-if (userStore.user) {
+;(async () => {
+  const userStore = useUserStore()
+  await userStore.fetchUser()
   await userStore.fetchUserProfile()
-}
 
-supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN') {
-    userStore.setUser(session?.user)
-    await userStore.fetchUserProfile()
-  } else if (event === 'SIGNED_OUT') {
-    userStore.clearUser()
-  }
-})
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN') {
+      userStore.setUser(session?.user)
+      await userStore.fetchUserProfile()
+    } else if (event === 'SIGNED_OUT') {
+      userStore.clearUser()
+    }
+  })
 
-app.mount('#app')
+  app.mount('#app')
+})()
