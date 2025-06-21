@@ -24,7 +24,7 @@ export default {
   font-size: 18px;
 }
 a.router-link-active {
-  border-bottom: 2px solid #00ce89;
+  border-bottom: 2px solid var(--primary-color);
   padding-bottom: 4px;
 }
 </style>

@@ -4,79 +4,52 @@
     <input type="text" v-model="title" required />
     <label>Details</label>
     <textarea v-model="details" required></textarea>
-    <button>Add Project</button>
+    <button type="submit" :disabled="isLoading">
+      <span v-if="isLoading">Loading...</span>
+      <span v-else>Add Project</span>
+    </button>
   </form>
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
+import { supabase } from '@/lib/supabaseClient'
+
 export default {
   data() {
     return {
       title: '',
       details: '',
+      isLoading: false,
     }
   },
+  computed: {
+    ...mapState(useUserStore, ['user']),
+  },
   methods: {
-    handleSubmit() {
+    async handleSubmit() {
       const project = {
         title: this.title,
         details: this.details,
         complete: false,
+        user_id: this.user.id,
       }
 
-      fetch('http://localhost:8000/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(project),
-      })
-        .then(() => {
-          this.$router.push('/')
-        })
-        .catch((error) => {
-          console.error('Error adding project:', error)
-        })
+      await this.addProject(project)
+      this.$router.push({ name: 'Home' })
+    },
+    async addProject(projectData) {
+      try {
+        this.isLoading = true
+        const { data } = await supabase.from('projects').insert(projectData)
+        return data
+      } catch (error) {
+        console.error('Error adding project:', error)
+      } finally {
+        this.isLoading = false
+      }
     },
   },
 }
 </script>
-
-<style>
-form {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-}
-label {
-  display: block;
-  color: #bbb;
-  text-transform: uppercase;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  margin: 20px 0 10px 0;
-}
-input {
-  padding: 10px;
-  border: 0;
-  border-bottom: 1px solid #ddd;
-  width: 100%;
-  box-sizing: border-box;
-}
-textarea {
-  border: 1px solid #ddd;
-  padding: 10px;
-  width: 100%;
-  box-sizing: border-box;
-  height: 100px;
-}
-form button {
-  display: block;
-  margin: 20px auto 0;
-  background: #00ce89;
-  color: white;
-  padding: 10px;
-  border: 0;
-  border-radius: 6px;
-  font-size: 16px;
-}
-</style>

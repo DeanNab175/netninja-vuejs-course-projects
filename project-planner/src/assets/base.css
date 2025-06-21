@@ -1,3 +1,10 @@
+:root {
+  --primary-color: #0a9cdf;
+  --secondary-color: #f2f2f2;
+  --text-color: #555;
+  --error-color: crimson;
+}
+
 *,
 *::before,
 *::after {
@@ -10,8 +17,88 @@ body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  max-width: 600px;
-  margin: 0 auto;
   color: #555;
   background: #f2f2f2;
+}
+
+form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+label {
+  display: block;
+  color: #bbb;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 20px 0 10px 0;
+}
+input {
+  padding: 10px;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
+}
+textarea {
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100px;
+}
+form button {
+  display: block;
+  margin: 20px auto 0;
+  background: var(--primary-color);
+  color: white;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+p {
+  margin-block: 0.5rem;
+}
+
+a {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0 10px;
+  color: #999;
+  font-size: 18px;
+}
+
+a.router-link-active {
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 4px;
+}
+
+.error {
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--error-color);
+}
+
+.btn {
+  border: 1px solid #000;
+  background-color: #ffffff;
+  color: #000;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+a.btn-link,
+a.btn-link.router-link-active {
+  font-size: 1rem;
+  line-height: 1;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
 }

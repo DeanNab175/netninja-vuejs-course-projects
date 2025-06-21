@@ -1,14 +1,22 @@
 <template>
-  <form @submit.prevent="handleSubmit">
+  <p v-if="isLoadingProjectData">Loading...</p>
+  <form @submit.prevent="handleSubmit" v-else>
     <label>Title</label>
     <input type="text" v-model="title" required />
     <label>Details</label>
     <textarea v-model="details" required></textarea>
-    <button>Update Project</button>
+    <button type="submit" :disabled="isUpdating">
+      <span v-if="isUpdating">Loading...</span>
+      <span v-else>Update Project</span>
+    </button>
   </form>
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
+import { supabase } from '@/lib/supabaseClient'
+
 export default {
   name: 'EditProject',
   props: ['id'],
@@ -16,40 +24,53 @@ export default {
     return {
       title: '',
       details: '',
-      uri: `http://localhost:8000/projects/${this.id}`,
+      isLoadingProjectData: false,
+      isUpdating: false,
     }
   },
-  mounted() {
-    fetch(this.uri)
-      .then((response) => response.json())
-      .then((data) => {
-        this.title = data.title
-        this.details = data.details
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error)
-      })
+  computed: {
+    ...mapState(useUserStore, ['user']),
+  },
+  async mounted() {
+    const data = await this.fetchProject()
+
+    if (data) {
+      this.title = data.title
+      this.details = data.details
+    }
   },
   methods: {
-    handleSubmit() {
+    async handleSubmit() {
       const projectData = {
         title: this.title,
         details: this.details,
       }
 
-      fetch(this.uri, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectData),
-      })
-        .then(() => {
-          this.$router.push({ name: 'Home' })
-        })
-        .catch((error) => {
-          console.error('Error updating project:', error)
-        })
+      try {
+        this.isUpdating = true
+        await supabase.from('projects').update(projectData).eq('id', this.id)
+
+        this.$router.push({ name: 'Home' })
+      } catch (error) {
+        console.error('Error updating project:', error)
+      } finally {
+        this.isUpdating = false
+      }
+    },
+    async fetchProject() {
+      try {
+        this.isLoadingProjectData = true
+        const { data } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', this.user.id)
+          .eq('id', this.id)
+        return data?.[0]
+      } catch (error) {
+        console.error('Error fetching project:', error)
+      } finally {
+        this.isLoadingProjectData = false
+      }
     },
   },
 }

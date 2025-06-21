@@ -6,8 +6,20 @@
         <router-link :to="{ name: 'EditProject', params: { id: project.id } }">
           <span class="material-symbols-outlined"> edit </span>
         </router-link>
-        <span class="material-symbols-outlined" @click="deleteProject"> delete </span>
-        <span class="material-symbols-outlined tick" @click="toggleComplete"> check </span>
+        <span
+          class="material-symbols-outlined action-btn"
+          :class="{ disabled: isDeleteLoading }"
+          @click="deleteProject"
+        >
+          delete
+        </span>
+        <span
+          class="material-symbols-outlined tick action-btn"
+          :class="{ disabled: isCheckLoading }"
+          @click="toggleComplete"
+        >
+          check
+        </span>
       </div>
     </div>
     <div v-if="showDetails" class="details">
@@ -17,45 +29,46 @@
 </template>
 
 <script>
+import { supabase } from '@/lib/supabaseClient'
+
 export default {
   props: ['project'],
   data() {
     return {
       showDetails: false,
-      uri: 'http://localhost:8000/projects/' + this.project.id,
+      isCheckLoading: false,
+      isDeleteLoading: false,
     }
   },
   methods: {
     toggleDetails() {
       this.showDetails = !this.showDetails
     },
-    deleteProject() {
-      fetch(this.uri, {
-        method: 'DELETE',
-      })
-        .then(() => {
-          this.$emit('delete', this.project.id)
-        })
-        .catch((error) => {
-          console.error('Error deleting project:', error)
-        })
+    async deleteProject() {
+      try {
+        this.isDeleteLoading = true
+        await supabase.from('projects').delete().eq('id', this.project.id)
+        this.$emit('delete', this.project.id)
+      } catch (error) {
+        console.error('Error deleting project:', error)
+      } finally {
+        this.isDeleteLoading = false
+      }
     },
-    toggleComplete() {
-      fetch(this.uri, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          complete: !this.project.complete,
-        }),
-      })
-        .then(() => {
-          this.$emit('complete', this.project.id)
-        })
-        .catch((error) => {
-          console.error('Error toggling project completion:', error)
-        })
+    async toggleComplete() {
+      try {
+        this.isCheckLoading = true
+        await supabase
+          .from('projects')
+          .update({ complete: !this.project.complete })
+          .eq('id', this.project.id)
+
+        this.$emit('complete', this.project.id)
+      } catch (error) {
+        console.error('Error toggling project completion:', error)
+      } finally {
+        this.isCheckLoading = false
+      }
     },
   },
 }
@@ -89,9 +102,16 @@ h3 {
 }
 /* completed projects */
 .project.complete {
-  border-left: 4px solid #00ce89;
+  border-left: 4px solid var(--primary-color);
 }
 .project.complete .tick {
-  color: #00ce89;
+  color: var(--primary-color);
+}
+
+.action-btn.disabled,
+.action-btn.disabled:hover {
+  pointer-events: none;
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 </style>
